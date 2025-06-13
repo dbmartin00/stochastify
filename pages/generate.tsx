@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import * as cookie from 'cookie';
 
-
 type Props = {
   accessToken: string | null;
 };
@@ -79,47 +78,79 @@ export default function GeneratePage({
         🎵 Random Spotify Playlist
       </h1>
 
-      <label style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>
-        Choose playlist length:
-      </label>
-      <select
-        value={length}
-        onChange={(e) => setLength(Number(e.target.value))}
-        style={{
-          fontSize: '1.2rem',
-          padding: '0.5rem',
-          marginBottom: '2rem',
-        }}
-      >
-        {[10, 15, 20, 25, 30, 40, 50].map((val) => (
-          <option key={val} value={val}>
-            {val} tracks
-          </option>
-        ))}
-      </select>
+      {/* Form Section */}
+      <div style={{ opacity: loading ? 0.3 : 1, transition: 'opacity 0.3s ease' }}>
+        <label style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>
+          Choose playlist length:
+        </label>
+        <select
+          value={length}
+          onChange={(e) => setLength(Number(e.target.value))}
+          style={{
+            fontSize: '1.2rem',
+            padding: '0.5rem',
+            marginBottom: '2rem',
+          }}
+        >
+          {[10, 15, 20, 25, 30, 40, 50].map((val) => (
+            <option key={val} value={val}>
+              {val} tracks
+            </option>
+          ))}
+        </select>
 
-      <button
-        onClick={handleGenerateClick}
-        style={{
-          fontSize: '1.5rem',
-          padding: '1rem 2.5rem',
-          backgroundColor: '#1DB954',
-          color: 'white',
-          border: 'none',
-          borderRadius: '50px',
-          cursor: 'pointer',
-          boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
-          transition: 'transform 0.2s ease',
-        }}
-        onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
-        onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1.0)')}
-      >
-        🚀 Generate Random Playlist
-      </button>
+        <button
+          onClick={handleGenerateClick}
+          disabled={loading}
+          style={{
+            fontSize: '1.5rem',
+            padding: '1rem 2.5rem',
+            backgroundColor: '#1DB954',
+            color: 'white',
+            border: 'none',
+            borderRadius: '50px',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            opacity: loading ? 0.6 : 1,
+            boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+            transition: 'transform 0.2s ease',
+          }}
+          onMouseOver={(e) => !loading && (e.currentTarget.style.transform = 'scale(1.05)')}
+          onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1.0)')}
+        >
+          🚀 Generate Random Playlist
+        </button>
+      </div>
 
-      {loading && <p style={{ marginTop: '2rem' }}>Generating playlist...</p>}
+      {/* Spinner and Loading Text */}
+      {loading && (
+        <div style={{ marginTop: '2rem' }}>
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              border: '4px solid #ccc',
+              borderTop: '4px solid #1DB954',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: 'auto',
+            }}
+          />
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+          <p style={{ marginTop: '1rem', fontSize: '1rem', color: '#555', fontStyle: 'italic' }}>
+            Building your playlist...
+          </p>
+        </div>
+      )}
+
+      {/* Error */}
       {error && <p style={{ color: 'red', marginTop: '1rem' }}>{error}</p>}
 
+      {/* Track List */}
       {tracks.length > 0 && (
         <div style={{ marginTop: '2rem', width: '100%', maxWidth: '600px' }}>
           <h2>🎶 Your Random Playlist</h2>
