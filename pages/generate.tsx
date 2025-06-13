@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
-import cookie from 'cookie';
+import * as cookie from 'cookie';
+
 
 type Props = {
   accessToken: string | null;
