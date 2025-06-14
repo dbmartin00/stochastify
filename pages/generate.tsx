@@ -3,7 +3,6 @@ import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 const cookie = require('cookie');
 import axios from 'axios';
 
-// --- Types ---
 type Props = {
   accessToken: string | null;
 };
@@ -13,7 +12,6 @@ type Track = {
   name: string;
 };
 
-// --- Server-side token grab ---
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
   let accessToken: string | null = null;
 
@@ -40,7 +38,6 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
   };
 };
 
-// --- Main Component ---
 export default function GeneratePage({
   accessToken,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
@@ -49,9 +46,14 @@ export default function GeneratePage({
   const [playlistSize, setPlaylistSize] = useState<number>(10);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleGenerate = async () => {
     if (!accessToken) return;
+
+    setIsLoading(true);
+    setTracks([]);
+    setSaveMessage('');
 
     try {
       const response = await axios.post(
@@ -65,6 +67,8 @@ export default function GeneratePage({
       setTracks(response.data.tracks || []);
     } catch (err) {
       console.error('Error generating playlist:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,7 +79,7 @@ export default function GeneratePage({
     setSaveMessage('');
 
     try {
-      const response = await axios.post('https://25kycybs6np2p3xupkixayycee0oqbom.lambda-url.us-west-2.on.aws/', {
+      await axios.post('https://25kycybs6np2p3xupkixayycee0oqbom.lambda-url.us-west-2.on.aws/', {
         access_token: accessToken,
         name: playlistName,
         tracks: tracks,
@@ -123,16 +127,27 @@ export default function GeneratePage({
           border: 'none',
           borderRadius: '8px',
           cursor: 'pointer',
-          marginBottom: '3rem',
+          marginBottom: '2rem',
         }}
       >
         Generate Playlist
       </button>
 
-      {tracks.length > 0 && (
-        <div>
-          <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <label htmlFor="playlistName" style={{ fontWeight: 'bold', marginRight: '1rem' }}>Playlist Name:</label>
+      {isLoading && <p style={{ fontSize: '1.1rem', color: '#999' }}>⏳ Generating your playlist...</p>}
+
+      {tracks.length > 0 && !isLoading && (
+        <>
+          <div
+            style={{
+              marginTop: '2rem',
+              marginBottom: '1rem',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '1rem',
+            }}
+          >
+            <label htmlFor="playlistName" style={{ fontWeight: 'bold' }}>Playlist Name:</label>
             <input
               id="playlistName"
               type="text"
@@ -158,13 +173,25 @@ export default function GeneratePage({
               border: 'none',
               borderRadius: '5px',
               cursor: isSaving ? 'not-allowed' : 'pointer',
+              marginBottom: '2rem',
             }}
           >
             {isSaving ? 'Saving...' : 'Save to Spotify'}
           </button>
 
           {saveMessage && <p style={{ marginTop: '1rem' }}>{saveMessage}</p>}
-        </div>
+
+          <div style={{ marginTop: '2rem', textAlign: 'left', maxWidth: '600px', marginInline: 'auto' }}>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>🎵 Playlist</h2>
+            <ul style={{ listStyle: 'none', padding: 0 }}>
+              {tracks.map((track, index) => (
+                <li key={track.uri} style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>
+                  {index + 1}. {track.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </>
       )}
     </div>
   );
