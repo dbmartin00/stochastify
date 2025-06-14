@@ -3,20 +3,20 @@ import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import cookie from 'cookie';
 import axios from 'axios';
 
-// Define the props from server-side
+// --- Types ---
 type Props = {
   accessToken: string | null;
 };
 
-// Define the Track type
 type Track = {
   uri: string;
   name: string;
 };
 
-// Get the access token from the cookie
+// --- Server-side token grab ---
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
-  const cookies = cookie.parse(context.req.headers.cookie || '');
+  const cookieHeader = context.req?.headers?.cookie || '';
+  const cookies = cookie.parse(cookieHeader);
   const accessToken = cookies.spotify_access_token || null;
 
   if (!accessToken) {
@@ -33,7 +33,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
   };
 };
 
-// Default export: GeneratePage component
+// --- Main Component ---
 export default function GeneratePage({
   accessToken,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
@@ -43,7 +43,7 @@ export default function GeneratePage({
   const [saveMessage, setSaveMessage] = useState('');
 
   const handleGenerate = () => {
-    // Replace this with your real playlist generation logic
+    // TODO: Replace with actual generation logic
     setTracks([
       { uri: 'spotify:track:123', name: 'Sample Track 1' },
       { uri: 'spotify:track:456', name: 'Sample Track 2' },
@@ -129,4 +129,3 @@ export default function GeneratePage({
     </div>
   );
 }
-//
