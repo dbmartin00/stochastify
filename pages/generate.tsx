@@ -1,12 +1,20 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import cookie from 'cookie';
+import axios from 'axios';
 
+// Define the props from server-side
 type Props = {
   accessToken: string | null;
 };
 
+// Define the Track type
+type Track = {
+  uri: string;
+  name: string;
+};
+
+// Get the access token from the cookie
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
   const cookies = cookie.parse(context.req.headers.cookie || '');
   const accessToken = cookies.spotify_access_token || null;
@@ -25,13 +33,22 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
   };
 };
 
+// Default export: GeneratePage component
 export default function GeneratePage({
   accessToken,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const [tracks, setTracks] = useState([]);
+  const [tracks, setTracks] = useState<Track[]>([]);
   const [playlistName, setPlaylistName] = useState('Stochastify Playlist #1');
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+
+  const handleGenerate = () => {
+    // Replace this with your real playlist generation logic
+    setTracks([
+      { uri: 'spotify:track:123', name: 'Sample Track 1' },
+      { uri: 'spotify:track:456', name: 'Sample Track 2' },
+    ]);
+  };
 
   const handleSave = async () => {
     if (!accessToken || tracks.length === 0) return;
@@ -46,10 +63,10 @@ export default function GeneratePage({
         tracks: tracks,
       });
 
-      setSaveMessage('✅ Playlist saved!');
+      setSaveMessage('✅ Playlist saved to Spotify!');
     } catch (err) {
+      console.error('Save failed:', err);
       setSaveMessage('❌ Failed to save playlist.');
-      console.error(err);
     } finally {
       setIsSaving(false);
     }
@@ -57,19 +74,21 @@ export default function GeneratePage({
 
   return (
     <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      {/* Your playlist generator UI here */}
-      {/* Example button that populates dummy tracks */}
+      <h1>🎵 Stochastify</h1>
+
       <button
-        style={{ fontSize: '1.2rem', padding: '1rem', marginBottom: '2rem' }}
-        onClick={() => {
-          // Dummy track data for testing
-          setTracks([
-            { uri: 'spotify:track:1', name: 'Song A' },
-            { uri: 'spotify:track:2', name: 'Song B' },
-          ]);
+        onClick={handleGenerate}
+        style={{
+          fontSize: '1.2rem',
+          padding: '1rem 2rem',
+          backgroundColor: '#1DB954',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
         }}
       >
-        Generate
+        Generate Playlist
       </button>
 
       {tracks.length > 0 && (
@@ -81,10 +100,17 @@ export default function GeneratePage({
             value={playlistName}
             onChange={(e) => setPlaylistName(e.target.value)}
             maxLength={30}
-            style={{ fontSize: '1rem', padding: '0.5rem', width: '300px', marginRight: '1rem' }}
+            style={{
+              fontSize: '1rem',
+              padding: '0.5rem',
+              width: '300px',
+              marginRight: '1rem',
+              marginTop: '0.5rem',
+            }}
           />
           <button
             onClick={handleSave}
+            disabled={isSaving}
             style={{
               fontSize: '1.2rem',
               padding: '1rem 2rem',
@@ -94,7 +120,6 @@ export default function GeneratePage({
               borderRadius: '5px',
               cursor: isSaving ? 'not-allowed' : 'pointer',
             }}
-            disabled={isSaving}
           >
             {isSaving ? 'Saving...' : 'Save to Spotify'}
           </button>
