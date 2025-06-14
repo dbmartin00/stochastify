@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import axios from 'axios';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
-import * as cookie from 'cookie';
+import cookie from 'cookie';
 
 type Props = {
   accessToken: string | null;
@@ -27,144 +28,79 @@ export const getServerSideProps: GetServerSideProps<Props> = async (context) => 
 export default function GeneratePage({
   accessToken,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const [length, setLength] = useState(25);
   const [tracks, setTracks] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [playlistName, setPlaylistName] = useState('Stochastify Playlist #1');
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState('');
 
-  const handleGenerateClick = async () => {
-    setLoading(true);
-    setError('');
-    setTracks([]);
+  const handleSave = async () => {
+    if (!accessToken || tracks.length === 0) return;
+
+    setIsSaving(true);
+    setSaveMessage('');
 
     try {
-      const response = await fetch(
-        'https://6f33u7nr6tj5oky6r6qznmuuxm0bskch.lambda-url.us-west-2.on.aws/',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            access_token: accessToken,
-            count: length,
-          }),
-        }
-      );
+      const response = await axios.post('https://25kycybs6np2p3xupkixayycee0oqbom.lambda-url.us-west-2.on.aws/', {
+        access_token: accessToken,
+        name: playlistName,
+        tracks: tracks,
+      });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setTracks(data.tracks || []);
-    } catch (err: any) {
+      setSaveMessage('✅ Playlist saved!');
+    } catch (err) {
+      setSaveMessage('❌ Failed to save playlist.');
       console.error(err);
-      setError('Failed to generate playlist.');
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
   return (
-    <main
-      style={{
-        padding: '2rem',
-        fontFamily: 'sans-serif',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}
-    >
-      <h1 style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>
-        🎵 Random Spotify Playlist
-      </h1>
+    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
+      {/* Your playlist generator UI here */}
+      {/* Example button that populates dummy tracks */}
+      <button
+        style={{ fontSize: '1.2rem', padding: '1rem', marginBottom: '2rem' }}
+        onClick={() => {
+          // Dummy track data for testing
+          setTracks([
+            { uri: 'spotify:track:1', name: 'Song A' },
+            { uri: 'spotify:track:2', name: 'Song B' },
+          ]);
+        }}
+      >
+        Generate
+      </button>
 
-      {/* Form Section */}
-      <div style={{ opacity: loading ? 0.3 : 1, transition: 'opacity 0.3s ease' }}>
-        <label style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>
-          Choose playlist length:
-        </label>
-        <select
-          value={length}
-          onChange={(e) => setLength(Number(e.target.value))}
-          style={{
-            fontSize: '1.2rem',
-            padding: '0.5rem',
-            marginBottom: '2rem',
-          }}
-        >
-          {[10, 15, 20, 25, 30, 40, 50].map((val) => (
-            <option key={val} value={val}>
-              {val} tracks
-            </option>
-          ))}
-        </select>
-
-        <button
-          onClick={handleGenerateClick}
-          disabled={loading}
-          style={{
-            fontSize: '1.5rem',
-            padding: '1rem 2.5rem',
-            backgroundColor: '#1DB954',
-            color: 'white',
-            border: 'none',
-            borderRadius: '50px',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            opacity: loading ? 0.6 : 1,
-            boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
-            transition: 'transform 0.2s ease',
-          }}
-          onMouseOver={(e) => !loading && (e.currentTarget.style.transform = 'scale(1.05)')}
-          onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1.0)')}
-        >
-          🚀 Generate Random Playlist
-        </button>
-      </div>
-
-      {/* Spinner and Loading Text */}
-      {loading && (
-        <div style={{ marginTop: '2rem' }}>
-          <div
-            style={{
-              width: '40px',
-              height: '40px',
-              border: '4px solid #ccc',
-              borderTop: '4px solid #1DB954',
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite',
-              margin: 'auto',
-            }}
-          />
-          <style>{`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}</style>
-          <p style={{ marginTop: '1rem', fontSize: '1rem', color: '#555', fontStyle: 'italic' }}>
-            Building your playlist...
-          </p>
-        </div>
-      )}
-
-      {/* Error */}
-      {error && <p style={{ color: 'red', marginTop: '1rem' }}>{error}</p>}
-
-      {/* Track List */}
       {tracks.length > 0 && (
-        <div style={{ marginTop: '2rem', width: '100%', maxWidth: '600px' }}>
-          <h2>🎶 Your Random Playlist</h2>
-          <ul>
-            {tracks.map((track: any, i: number) => (
-              <li key={i} style={{ marginBottom: '1rem' }}>
-                <strong>{track.name}</strong>
-                <br />
-                <small>{track.artists.join(', ')}</small>
-              </li>
-            ))}
-          </ul>
+        <div style={{ marginTop: '2rem' }}>
+          <label htmlFor="playlistName">Playlist Name:</label><br />
+          <input
+            id="playlistName"
+            type="text"
+            value={playlistName}
+            onChange={(e) => setPlaylistName(e.target.value)}
+            maxLength={30}
+            style={{ fontSize: '1rem', padding: '0.5rem', width: '300px', marginRight: '1rem' }}
+          />
+          <button
+            onClick={handleSave}
+            style={{
+              fontSize: '1.2rem',
+              padding: '1rem 2rem',
+              backgroundColor: '#1DB954',
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: isSaving ? 'not-allowed' : 'pointer',
+            }}
+            disabled={isSaving}
+          >
+            {isSaving ? 'Saving...' : 'Save to Spotify'}
+          </button>
+          {saveMessage && <p style={{ marginTop: '1rem' }}>{saveMessage}</p>}
         </div>
       )}
-    </main>
+    </div>
   );
 }
