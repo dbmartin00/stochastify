@@ -187,7 +187,10 @@ export default function GeneratePage({
             <ul style={{ listStyle: 'none', padding: 0 }}>
               {tracks.map((track, index) => (
                 <li key={track.uri} style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>
-                  {index + 1}. {track.artists?.map(a => a.name).join(', ')} – {track.name}
+                  {index + 1}. {(track.artists
+                    ?.map((a) => a?.name?.trim())
+                    .filter((name) => name && name.length > 0)
+                    .join(', ')) || 'Unknown Artist'} – {track.name}
                 </li>
               ))}
             </ul>
