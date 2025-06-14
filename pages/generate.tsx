@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 const cookie = require('cookie');
 import axios from 'axios';
-import { Analytics };
+import { Analytics } from '@vercel/analytics/react';
 
 type Props = {
   accessToken: string | null;
