@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 const cookie = require('cookie');
 import axios from 'axios';
@@ -56,12 +56,6 @@ export default function GeneratePage({
   const [saveMessage, setSaveMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    if (accessToken) {
-      posthog.identify('user-placeholder'); // Replace with a real user identifier if available
-    }
-  }, [accessToken]);
-
   const handleGenerate = async () => {
     if (!accessToken) return;
 
@@ -89,7 +83,9 @@ export default function GeneratePage({
       });
     } catch (err) {
       console.error('Error generating playlist:', err);
-      posthog.capture('generate_failed', { error: err.toString() });
+      posthog.capture('generate_failed', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     } finally {
       setIsLoading(false);
     }
@@ -117,7 +113,9 @@ export default function GeneratePage({
       setSaveMessage('✅ Playlist saved to Spotify!');
     } catch (err) {
       console.error('Save failed:', err);
-      posthog.capture('save_failed', { error: err.toString() });
+      posthog.capture('save_failed', {
+        error: err instanceof Error ? err.message : String(err),
+      });
       setSaveMessage('❌ Failed to save playlist.');
     } finally {
       setIsSaving(false);
