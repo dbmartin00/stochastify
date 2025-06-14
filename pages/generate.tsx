@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 const cookie = require('cookie');
 import axios from 'axios';
-import { Analytics, event } from '@vercel/analytics/react';
+import { Analytics };
 
 type Props = {
   accessToken: string | null;
@@ -53,7 +53,7 @@ export default function GeneratePage({
   const handleGenerate = async () => {
     if (!accessToken) return;
 
-    event('Generate Clicked');
+    // event('Generate Clicked');
 
     setIsLoading(true);
     setTracks([]);
@@ -89,7 +89,7 @@ export default function GeneratePage({
         tracks: tracks,
       });
 
-      event('Playlist Saved');
+      // event('Playlist Saved');
 
       setSaveMessage('✅ Playlist saved to Spotify!');
     } catch (err) {
@@ -206,4 +206,4 @@ export default function GeneratePage({
   );
 }
 
-//
+
