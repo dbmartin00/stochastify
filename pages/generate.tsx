@@ -1,8 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 const cookie = require('cookie');
 import axios from 'axios';
 import { Analytics } from '@vercel/analytics/react';
+import posthog from 'posthog-js';
+
+// Initialize PostHog
+posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY || '', {
+  api_host: 'https://us.i.posthog.com',
+});
 
 type Props = {
   accessToken: string | null;
@@ -50,10 +56,18 @@ export default function GeneratePage({
   const [saveMessage, setSaveMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (accessToken) {
+      posthog.identify('user-placeholder'); // Replace with a real user identifier if available
+    }
+  }, [accessToken]);
+
   const handleGenerate = async () => {
     if (!accessToken) return;
 
-    // event('Generate Clicked');
+    posthog.capture('generate_clicked', {
+      playlistSize,
+    });
 
     setIsLoading(true);
     setTracks([]);
@@ -69,8 +83,13 @@ export default function GeneratePage({
       );
 
       setTracks(response.data.tracks || []);
+
+      posthog.capture('playlist_generated', {
+        count: (response.data?.tracks || []).length,
+      });
     } catch (err) {
       console.error('Error generating playlist:', err);
+      posthog.capture('generate_failed', { error: err.toString() });
     } finally {
       setIsLoading(false);
     }
@@ -78,6 +97,11 @@ export default function GeneratePage({
 
   const handleSave = async () => {
     if (!accessToken || tracks.length === 0) return;
+
+    posthog.capture('save_clicked', {
+      trackCount: tracks.length,
+      name: playlistName,
+    });
 
     setIsSaving(true);
     setSaveMessage('');
@@ -89,11 +113,11 @@ export default function GeneratePage({
         tracks: tracks,
       });
 
-      // event('Playlist Saved');
-
+      posthog.capture('playlist_saved');
       setSaveMessage('✅ Playlist saved to Spotify!');
     } catch (err) {
       console.error('Save failed:', err);
+      posthog.capture('save_failed', { error: err.toString() });
       setSaveMessage('❌ Failed to save playlist.');
     } finally {
       setIsSaving(false);
@@ -205,5 +229,3 @@ export default function GeneratePage({
     </div>
   );
 }
-
-
