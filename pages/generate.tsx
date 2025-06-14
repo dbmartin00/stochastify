@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
-const cookie = require('cookie'); // use require to avoid ESM/CJS conflict
+const cookie = require('cookie');
 import axios from 'axios';
 
 // --- Types ---
@@ -46,15 +46,26 @@ export default function GeneratePage({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [tracks, setTracks] = useState<Track[]>([]);
   const [playlistName, setPlaylistName] = useState('Stochastify Playlist #1');
+  const [playlistSize, setPlaylistSize] = useState<number>(10);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
 
-  const handleGenerate = () => {
-    // TODO: Replace with actual generation logic
-    setTracks([
-      { uri: 'spotify:track:123', name: 'Sample Track 1' },
-      { uri: 'spotify:track:456', name: 'Sample Track 2' },
-    ]);
+  const handleGenerate = async () => {
+    if (!accessToken) return;
+
+    try {
+      const response = await axios.post(
+        'https://6f33u7nr6tj5oky6r6qznmuuxm0bskch.lambda-url.us-west-2.on.aws/',
+        {
+          access_token: accessToken,
+          count: playlistSize,
+        }
+      );
+
+      setTracks(response.data.tracks || []);
+    } catch (err) {
+      console.error('Error generating playlist:', err);
+    }
   };
 
   const handleSave = async () => {
@@ -86,6 +97,22 @@ export default function GeneratePage({
         Generate a new random playlist from your own playlists
       </p>
 
+      <div style={{ marginBottom: '2rem' }}>
+        <label htmlFor="playlistSize" style={{ fontWeight: 'bold', marginRight: '1rem' }}>
+          Playlist Size:
+        </label>
+        <select
+          id="playlistSize"
+          value={playlistSize}
+          onChange={(e) => setPlaylistSize(parseInt(e.target.value))}
+          style={{ fontSize: '1rem', padding: '0.5rem' }}
+        >
+          <option value={10}>10</option>
+          <option value={25}>25</option>
+          <option value={50}>50</option>
+        </select>
+      </div>
+
       <button
         onClick={handleGenerate}
         style={{
@@ -96,28 +123,30 @@ export default function GeneratePage({
           border: 'none',
           borderRadius: '8px',
           cursor: 'pointer',
+          marginBottom: '3rem',
         }}
       >
         Generate Playlist
       </button>
 
       {tracks.length > 0 && (
-        <div style={{ marginTop: '3rem' }}>
-          <label htmlFor="playlistName" style={{ fontWeight: 'bold' }}>Playlist Name:</label><br />
-          <input
-            id="playlistName"
-            type="text"
-            value={playlistName}
-            onChange={(e) => setPlaylistName(e.target.value)}
-            maxLength={30}
-            style={{
-              fontSize: '1rem',
-              padding: '0.5rem',
-              width: '300px',
-              marginRight: '1rem',
-              marginTop: '1rem',
-            }}
-          />
+        <div>
+          <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <label htmlFor="playlistName" style={{ fontWeight: 'bold', marginRight: '1rem' }}>Playlist Name:</label>
+            <input
+              id="playlistName"
+              type="text"
+              value={playlistName}
+              onChange={(e) => setPlaylistName(e.target.value)}
+              maxLength={30}
+              style={{
+                fontSize: '1rem',
+                padding: '0.5rem',
+                width: '300px',
+              }}
+            />
+          </div>
+
           <button
             onClick={handleSave}
             disabled={isSaving}
@@ -133,6 +162,7 @@ export default function GeneratePage({
           >
             {isSaving ? 'Saving...' : 'Save to Spotify'}
           </button>
+
           {saveMessage && <p style={{ marginTop: '1rem' }}>{saveMessage}</p>}
         </div>
       )}
