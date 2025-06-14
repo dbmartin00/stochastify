@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
-const cookie = require('cookie');
+const cookie = require('cookie'); // use require to avoid ESM/CJS conflict
 import axios from 'axios';
 
 // --- Types ---
@@ -80,18 +80,21 @@ export default function GeneratePage({
   };
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <h1>🎵 Stochastify</h1>
+    <div style={{ padding: '3rem', fontFamily: 'Verdana, sans-serif', textAlign: 'center' }}>
+      <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>STOCHASTIFY</h1>
+      <p style={{ fontSize: '1.2rem', color: '#666', marginBottom: '2rem' }}>
+        Generate a new random playlist from your own playlists
+      </p>
 
       <button
         onClick={handleGenerate}
         style={{
-          fontSize: '1.2rem',
-          padding: '1rem 2rem',
+          fontSize: '1.5rem',
+          padding: '1rem 2.5rem',
           backgroundColor: '#1DB954',
           color: 'white',
           border: 'none',
-          borderRadius: '5px',
+          borderRadius: '8px',
           cursor: 'pointer',
         }}
       >
@@ -99,8 +102,8 @@ export default function GeneratePage({
       </button>
 
       {tracks.length > 0 && (
-        <div style={{ marginTop: '2rem' }}>
-          <label htmlFor="playlistName">Playlist Name:</label><br />
+        <div style={{ marginTop: '3rem' }}>
+          <label htmlFor="playlistName" style={{ fontWeight: 'bold' }}>Playlist Name:</label><br />
           <input
             id="playlistName"
             type="text"
@@ -112,7 +115,7 @@ export default function GeneratePage({
               padding: '0.5rem',
               width: '300px',
               marginRight: '1rem',
-              marginTop: '0.5rem',
+              marginTop: '1rem',
             }}
           />
           <button
@@ -136,4 +139,3 @@ export default function GeneratePage({
     </div>
   );
 }
-//
