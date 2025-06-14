@@ -1,5 +1,5 @@
 import { GetServerSideProps } from 'next';
-import cookie from 'cookie'; // ✅ correct default import
+import cookie from 'cookie';
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { access_token, refresh_token, expires_in } = context.query;
