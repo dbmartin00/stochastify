@@ -52,7 +52,8 @@ export default function GeneratePage({
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      import('posthog-js').then((posthog) => {
+      import('posthog-js').then((module) => {
+        const posthog = module.default;
         posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY || '', {
           api_host: 'https://us.i.posthog.com',
         });
@@ -60,6 +61,7 @@ export default function GeneratePage({
       });
     }
   }, []);
+
 
   const handleGenerate = async () => {
     if (!accessToken) return;
