@@ -1,3 +1,5 @@
+import { Analytics } from '@vercel/analytics/react';
+
 const SPOTIFY_CLIENT_ID = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID!;
 const REDIRECT_URI = 'https://w2etbv3keneun5x7omcm5adfwa0ivgss.lambda-url.us-west-2.on.aws/';
 
@@ -17,6 +19,7 @@ export default function HomePage() {
           Connect to Spotify
         </button>
       </a>
+      {process.env.NODE_ENV === 'production' && <Analytics />}
     </main>
   );
 }
