@@ -10,7 +10,7 @@ type Props = {
 type Track = {
   uri: string;
   name: string;
-  artists: { name: string }[];
+  artists: string[];
 };
 
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
@@ -187,10 +187,9 @@ export default function GeneratePage({
             <ul style={{ listStyle: 'none', padding: 0 }}>
               {tracks.map((track, index) => (
                 <li key={track.uri} style={{ padding: '0.5rem 0', borderBottom: '1px solid #eee' }}>
-                  {index + 1}. {(track.artists
-                    ?.map((a) => a?.name?.trim())
-                    .filter((name) => name && name.length > 0)
-                    .join(', ')) || 'Unknown Artist'} – {track.name}
+                  {index + 1}. {(Array.isArray(track.artists) && track.artists.length > 0
+                    ? track.artists.filter(name => name?.trim()).join(', ')
+                    : 'Unknown Artist')} – {track.name}
                 </li>
               ))}
             </ul>
