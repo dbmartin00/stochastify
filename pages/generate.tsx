@@ -15,9 +15,16 @@ type Track = {
 
 // --- Server-side token grab ---
 export const getServerSideProps: GetServerSideProps<Props> = async (context) => {
-  const cookieHeader = context.req?.headers?.cookie || '';
-  const cookies = cookie.parse(cookieHeader);
-  const accessToken = cookies.spotify_access_token || null;
+  let accessToken: string | null = null;
+
+  try {
+    const cookieHeader = context.req?.headers?.cookie || '';
+    const cookies = cookieHeader ? cookie.parse(cookieHeader) : {};
+    accessToken = cookies.spotify_access_token || null;
+  } catch (err) {
+    console.error('Error parsing cookies:', err);
+    accessToken = null;
+  }
 
   if (!accessToken) {
     return {
@@ -129,3 +136,4 @@ export default function GeneratePage({
     </div>
   );
 }
+//
