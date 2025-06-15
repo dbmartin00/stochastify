@@ -41,6 +41,7 @@ export default function HomePage() {
       }}>
         STOCHASTIFY
       </h1>
+
       <h2 style={{
         fontSize: '1.5rem',
         fontWeight: '400',
@@ -49,6 +50,7 @@ export default function HomePage() {
       }}>
         Random Spotify Playlist Generator
       </h2>
+
       <a href={loginUrl}>
         <button className="spotify-button" style={{
           fontSize: '1.2rem',
@@ -72,6 +74,15 @@ export default function HomePage() {
           Connect to Spotify
         </button>
       </a>
+
+      <p style={{
+        marginTop: '60px',
+        fontSize: '0.9rem',
+        color: '#bbb'
+      }}>
+        By <strong>Ad Hoc Technology</strong>
+      </p>
+
       {process.env.NODE_ENV === 'production' && <Analytics />}
     </main>
   );
