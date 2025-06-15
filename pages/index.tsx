@@ -12,10 +12,63 @@ const loginUrl = `https://accounts.spotify.com/authorize?` + new URLSearchParams
 
 export default function HomePage() {
   return (
-    <main style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Random Spotify Playlist Generator</h1>
+    <main style={{
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      background: 'linear-gradient(135deg, #1db954 10%, #191414 100%)',
+      fontFamily: 'Helvetica Neue, sans-serif',
+      color: 'white',
+      animation: 'fadeIn 1s ease-in'
+    }}>
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .spotify-button:hover {
+          background-color: #1ed760 !important;
+        }
+      `}</style>
+
+      <h1 style={{
+        fontSize: '4rem',
+        fontWeight: '900',
+        letterSpacing: '2px',
+        marginBottom: '10px'
+      }}>
+        STOCHASTIFY
+      </h1>
+      <h2 style={{
+        fontSize: '1.5rem',
+        fontWeight: '400',
+        color: '#d1d1d1',
+        marginBottom: '40px'
+      }}>
+        Random Spotify Playlist Generator
+      </h2>
       <a href={loginUrl}>
-        <button style={{ fontSize: '1.2rem', padding: '10px 20px' }}>
+        <button className="spotify-button" style={{
+          fontSize: '1.2rem',
+          padding: '12px 30px',
+          backgroundColor: '#1DB954',
+          color: 'white',
+          border: 'none',
+          borderRadius: '30px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+          transition: 'background-color 0.3s ease'
+        }}>
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/8/84/Spotify_icon.svg"
+            alt="Spotify logo"
+            style={{ width: '24px', height: '24px' }}
+          />
           Connect to Spotify
         </button>
       </a>
