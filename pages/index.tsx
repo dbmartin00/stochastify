@@ -75,13 +75,13 @@ export default function HomePage() {
         </button>
       </a>
 
-      <p style={{
+{/*      <p style={{
         marginTop: '60px',
         fontSize: '0.9rem',
         color: '#bbb'
       }}>
         By <strong>Ad Hoc Technology</strong>
-      </p>
+      </p>*/}
 
       {process.env.NODE_ENV === 'production' && <Analytics />}
     </main>
